@@ -1,0 +1,67 @@
+hostname R3
+no ip domain lookup
+line con 0
+ logging sync
+ exec-time 0 0
+ exit
+
+ipv6 unicast-routing
+
+interface Loopback0
+ ip address 192.168.3.1 255.255.255.224
+ ipv6 address FE80::3:4 link-local
+ ipv6 address 2001:DB8:ACAD:3000::1/64
+ no shut
+
+interface Loopback1
+ ip address 192.168.3.65 255.255.255.192
+ ipv6 address FE80::3:5 link-local
+ ipv6 address 2001:DB8:ACAD:3001::1/64
+ no shut
+
+interface G0/0/0
+ ip address 10.2.3.3 255.255.255.0
+ negotiation auto
+ ipv6 address FE80::3:1 link-local
+ ipv6 address 2001:DB8:ACAD:1023::3/64
+ no shut
+
+interface S0/1/0
+ ip address 10.1.3.3 255.255.255.128
+ ipv6 address FE80::3:2 link-local
+ ipv6 address 2001:DB8:ACAD:1013::3/64
+ no shut
+
+interface S0/1/1
+ ip address 10.1.3.130 255.255.255.128
+ ipv6 address FE80::3:3 link-local
+ ipv6 address 2001:DB8:ACAD:1014::3/64
+ no shut
+ exit
+
+router bgp 300
+ bgp router-id 3.3.3.3
+ neighbor 10.2.3.2 remote-as 500
+ neighbor 10.1.3.1 remote-as 1000
+ neighbor 10.1.3.129 remote-as 1000
+ neighbor 2001:db8:acad:1023::2 remote-as 500
+ neighbor 2001:db8:acad:1013::1 remote-as 1000
+ neighbor 2001:db8:acad:1014::1 remote-as 1000
+
+
+address-family ipv4 unicast
+ neighbor 10.1.3.1 activate
+ neighbor 10.1.3.129 activate
+ neighbor 10.2.3.2 activate
+ network 192.168.3.0 mask 255.255.255.224
+ network 192.168.3.64 mask 255.255.255.192
+ exit
+
+address-family ipv6 unicast
+ neighbor 2001:db8:acad:1023::2 activate
+ neighbor 2001:db8:acad:1013::1 activate
+ neighbor 2001:db8:acad:1014::1 activate
+ network 2001:db8:acad:3000::/64
+ network 2001:db8:acad:3001::/64
+ exit
+

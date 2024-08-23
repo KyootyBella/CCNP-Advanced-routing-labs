@@ -1,0 +1,84 @@
+no ip domain lookup
+hostname R3
+
+line con 0
+ exec-timeout 0 0
+ logging synchronous
+
+banner motd # This is R3, BGP Path Manipulation Lab #
+
+ipv6 unicast-routing
+
+interface g0/0/0
+ ip address 10.2.3.3 255.255.255.0
+ ipv6 address fe80::3:1 link-local
+ ipv6 address 2001:db8:acad:1023::3/64
+ no shutdown
+
+interface s0/1/0
+ ip address 10.1.3.3 255.255.255.128
+ ipv6 address fe80::3:2 link-local
+ ipv6 address 2001:db8:acad:1013::3/64
+ no shutdown
+
+interface s0/1/1
+ ip address 10.1.3.130 255.255.255.128
+ ipv6 address fe80::3:3 link-local
+ ipv6 address 2001:db8:acad:1014::3/64
+ no shutdown
+
+interface loopback0
+ ip address 192.168.3.1 255.255.255.224
+ ipv6 address fe80::3:4 link-local
+ ipv6 address 2001:db8:acad:3000::1/64
+ no shutdown
+
+interface loopback1
+ ip address 192.168.3.65 255.255.255.192
+ ipv6 address fe80::3:5 link-local
+ ipv6 address 2001:db8:acad:3001::1/64
+ no shutdown
+
+router bgp 300
+ bgp router-id 3.3.3.3
+ no bgp default ipv4-unicast
+ neighbor 10.1.3.1 remote-as 6500
+ neighbor 10.1.3.129 remote-as 6500
+ neighbor 10.2.3.2 remote-as 500
+ neighbor 2001:db8:acad:1013::1 remote-as 6500
+ neighbor 2001:db8:acad:1014::1 remote-as 6500
+ neighbor 2001:db8:acad:1023::2 remote-as 500
+
+address-family ipv4
+ network 192.168.3.0 mask 255.255.255.224
+ network 192.168.3.64 mask 255.255.255.192
+ neighbor 10.1.3.1 activate
+ neighbor 10.1.3.129 activate
+ neighbor 10.2.3.2 activate
+ no neighbor 2001:db8:acad:1013::1 activate
+ no neighbor 2001:db8:acad:1014::1 activate
+ no neighbor 2001:db8:acad:1023::2 activate
+ exit
+
+address-family ipv6
+ network 2001:db8:acad:3000::/64
+ network 2001:db8:acad:3001::/64
+ neighbor 2001:db8:acad:1013::1 activate
+ neighbor 2001:db8:acad:1014::1 activate
+ neighbor 2001:db8:acad:1023::2 activate
+ exit
+
+# RUN LATER
+
+ip access-list extended ALLOWED_TO_R1
+ permit ip #Check "show bgp ipv4 unicast | i 300" ON R1 for ip's 0.0.0.0 255.255.255.x 0.0.0.0
+ permit ip #Check "show bgp ipv4 unicast | i 300" ON R1 for ip's 0.0.0.0 255.255.255.x 0.0.0.0
+ exit
+
+router bgp 300
+ address-family ipv4 unicast
+  neighbor 10.1.3.1 distribute-list ALLOWED_TO_R1 out
+  neighbor 10.1.3.129 distribute-list ALLOWED_TO_R1 out
+  end
+
+clear bgp ipv4 unicast 6500 out
