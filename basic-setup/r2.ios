@@ -1,0 +1,46 @@
+enable 
+conf t 
+no ip domain-lookup
+
+hostname r2
+
+username admin password SSHLogin
+enable password EXECLogin
+service password-encryption
+
+ip default-gateway 192.168.99.1
+ip domain-name school
+crypto key generate rsa
+1024 bits
+
+line vty 0 15
+transport input ssh
+login local
+exit
+
+line con 0
+login local
+exit
+
+
+interface G0/0/0
+ ip address 10.1.2.2 255.255.255.0
+ no shutdown
+ exit
+
+interface G0/0/0.99
+ ip address 192.168.99.3 255.255.255.0
+ encapsulation dot1Q 99
+ no shutdown
+ exit
+
+interface g0/0/1
+ ip address 10.2.3.2 255.255.255.0
+ no shutdown
+ exit
+
+interface G0/0/1.99
+ ip address 192.168.99.4 255.255.255.0
+ encapsulation dot1Q 99
+ no shutdown
+ exit
