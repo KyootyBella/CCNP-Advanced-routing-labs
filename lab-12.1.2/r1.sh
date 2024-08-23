@@ -114,8 +114,9 @@ show bgp ipv4 unicast 192.168.3.0
 
 ip prefix-list PREFERRED_IPV4_PATH seq 5 permit 192.168.3.0/24 le 27
 route-map USE_THIS_PATH_FOR_IPV4 permit 10
-match ip address prefix-list PERFERRED_IPV4_PATH
-set local-preference 250
+ match ip address prefix-list PERFERRED_IPV4_PATH
+ set local-preference 250
+ exit
 
 router bgp 6500
  address-family ipv4 unicast
