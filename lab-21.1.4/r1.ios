@@ -1,0 +1,45 @@
+# Ticket 1
+
+control-plane
+ no service-policy input PM-COPP
+ exit
+no policy-map PM-COPP
+policy-map PM-COPP
+ class CM-SSH
+  police 50000 conform-action transmit exceed-action transmit
+   class CM-EIGRP
+  police rate 10 pps conform-action transmit exceed-action transmit
+   class CM-TELNET
+  police 8000 conform-action drop exceed-action drop
+   class CM-MGMT
+  police 8000 conform-action transmit exceed-action transmit
+   class CM-ICMP
+  police rate 10 pps conform-action transmit exceed-action drop
+   class class-default
+  police 12000 conform-action transmit exceed-action transmit
+   exit
+  exit
+ exit
+control-plane
+ service-policy input PM-COPP
+ end
+
+banner motd # This is $(hostname) FIXED from ticket 1 #
+
+# Ticket 2
+no route-map OSPF-into-EIGRP permit 10
+
+control-plane
+ no service-policy input PM-COPP
+ exit
+policy-map PM-COPP
+ class CM-SSH
+  police 8000 conform-action transmit exceed-action transmit
+   exit
+  exit
+ exit
+control-plane
+ service-policy input PM-COPP
+ end
+
+banner motd # This is $(hostname) FIXED from ticket 2 #

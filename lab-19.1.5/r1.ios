@@ -1,0 +1,47 @@
+hostname R1
+ipv6 unicast-routing
+no ip domain lookup
+banner motd # R1, Implement a DMVPN hub #
+
+line con 0
+ exec-timeout 0 0
+ logging synchronous
+ exit
+
+line vty 0 4
+ privilege level 15
+ password cisco123
+ exec-timeout 0 0
+ logging synchronous
+ login
+ exit
+
+ipv6 router eigrp 68
+ eigrp router-id 1.1.1.1
+ 
+ipv6 router eigrp 168
+ eigrp router-id 10.1.1.1
+
+interface g0/0/1
+ ipv6 address 2001:db8:acad:1::1/64
+ ipv6 address fe80::1 link-local
+ no shutdown
+ ipv6 eigrp 168
+ end
+
+interface tunnel 1
+ tunnel mode gre multipoint ipv6
+ tunnel source GigabitEthernet0/0/1
+ tunnel key 999
+ ipv6 address 2001:db8:cafe:100::1/64
+ ipv6 address fe80::2001 link-local
+ ipv6 nhrp network-id 1
+ ipv6 nhrp authentication NHRPauth
+ ipv6 nhrp map multicast dynamic
+ ipv6 nhrp redirect
+ bandwidth 4000
+ ipv6 mtu 1380
+ ipv6 tcp adjust-mss 1360
+ ipv6 eigrp 68
+ no ipv6 split-horizon eigrp 68
+

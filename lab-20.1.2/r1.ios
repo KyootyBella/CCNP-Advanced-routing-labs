@@ -1,0 +1,68 @@
+hostname R1
+no ip domain lookup
+banner motd # R1, Implement DMVPN Hub #
+
+line con 0
+ exec-timeout 0 0
+ logging synchronous
+ exit
+
+line vty 0 4
+ privilege level 15
+ password cisco123
+ exec-timeout 0 0
+ logging synchronous
+ login
+ exit
+
+crypto isakmp policy 99
+ hash sha384
+ encryption aes 256
+ group 14
+ authentication pre-share
+ exit
+
+crypto isakmp key DMVPN@key# address 0.0.0.0
+
+crypto ipsec transform-set DMVPN_TRANS esp-aes 256 esp-sha384-hmac
+ mode transport
+ exit
+
+crypto ipsec profile DMVPN_PROFILE
+ set transform-set DMVPN_TRANS
+ exit
+
+interface g0/0/1
+ ip address 192.0.2.1 255.255.255.252
+ no shutdown
+ exit
+
+interface tunnel 1
+ tunnel mode gre multipoint
+ tunnel source g0/0/1
+ tunnel key 999
+ ip address 100.100.100.1 255.255.255.248
+ ip nhrp network-id 1
+ ip nhrp authentication NHRPauth
+ ip nhrp map multicast dynamic
+ ip nhrp redirect
+ bandwidth 4000
+ ip mtu 1400
+ ip tcp adjust-mss 1360
+ tunnel protection ipsec profile DMVPN_PROFILE
+ exit
+
+router eigrp DMVPN_TUNNEL_NET
+ address-family ipv4 unicast autonomous-system 68
+  eigrp router-id 1.1.1.1
+  network 100.100.100.0 255.255.255.248
+  af-interface tunnel 1
+  no split-horizon
+  exit
+ exit
+
+router eigrp DMVPN_TRANS_NET
+ address-family ipv4 unicast autonomous-system 168
+  eigrp router-id 10.1.1.1 
+  network 192.0.2.0 255.255.255.252
+end
