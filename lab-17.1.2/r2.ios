@@ -1,0 +1,39 @@
+# Ticket 1
+
+router bgp 64512
+ address-family ipv4
+  bgp redistribute-internal
+  redistribute ospf 1 match internal external 1 external 2
+  exit
+ exit
+
+banner motd # This is $(hostname) FIXED from ticket 1 #
+
+# Ticket 2
+no route-map OSPF-into-EIGRP permit 10
+
+route-map OSPF-into-EIGRP permit 10
+ set metric 1000000 10 255 1 1500
+ exit
+
+router ospfv3 1
+ address-family ipv4
+  no redistribute EIGRP 64521 metric 25 metric-type 1
+  redistribute EIGRP 64512 metric 25 metric-type 1
+  exit
+ exit
+
+banner motd # This is $(hostname) FIXED from ticket 2 #
+
+# Ticket 3
+router eigrp CISCO
+ address-family ipv6 autonomous-system 64512
+  topology base
+   default-metric 1000000 10 255 1 1500
+   exit
+  exit
+ exit
+
+ipv6 prefix-list EIGRP-into-OSPF seq 10 permit 2001:DB8::/32 ge 80 le 80
+
+banner motd # This is $(hostname) FIXED from ticket 3 #

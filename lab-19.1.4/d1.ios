@@ -1,0 +1,42 @@
+hostname DMVPN
+no ip domain lookup
+ip routing
+banner motd # DMVPN, DMVPN cloud switch #
+
+line con 0
+ exec-timeout 0 0
+ logging synchronous
+ exit
+
+line vty 0 4
+ privilege level 15
+ password cisco123
+ exec-timeout 0 0
+ logging synchronous
+ login
+
+interface g1/0/11
+ no switchport
+ ip address 192.0.2.2 255.255.255.252
+ no shutdown
+ exit
+
+interface g1/0/12
+ no switchport
+ ip address 198.51.100.1 255.255.255.252
+ no shutdown
+ exit
+
+interface g1/0/13
+ no switchport
+ ip address 203.0.113.1 255.255.255.252
+ no shutdown
+ exit
+
+router eigrp DMVPN_TRANS_NET
+ address-family ipv4 unicast autonomous-system 168
+  eigrp router-id 40.4.4.4
+  network 192.0.2.0 255.255.255.252
+  network 198.51.100.0 255.255.255.252
+  network 203.0.113.0 255.255.255.252
+end

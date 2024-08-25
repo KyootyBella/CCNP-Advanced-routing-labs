@@ -1,0 +1,65 @@
+hostname R2
+no ip domain lookup
+banner motd # R2, Implement DMVPN Spoke 1 #
+
+line con 0
+ exec-timeout 0 0
+ logging synchronous
+ exit
+
+line vty 0 4
+ privilege level 15
+ password cisco123
+ exec-timeout 0 0
+ logging synchronous
+ login
+ exit
+
+interface g0/0/1
+ ip address 198.51.100.2 255.255.255.252
+ no shutdown
+ exit
+
+interface loopback 0
+ ip address 192.168.2.1 255.255.255.0
+ no shutdown
+ exit
+
+interface loopback 1
+ ip address 172.16.2.1 255.255.255.0
+ no shutdown
+ exit
+
+interface tunnel 1
+ tunnel mode gre ip
+ tunnel source loopback 0
+ tunnel destination 192.0.2.1
+ tunnel key 999
+ ip address 100.100.100.2 255.255.255.248
+ ip nhrp network-id 1
+ ip nhrp authentication NHRPauth
+ ip nhrp nhs 100.100.100.1
+ ip nhrp map multicast 192.0.2.1
+ ip nhrp map 100.100.100.1 192.0.2.1
+ ip mtu 1400
+ ip tcp adjust-mss 1360
+ no tunnel destination
+ tunnel mode gre multipoint
+ ip nhrp shortcut
+ exit
+
+router eigrp DMVPN_TUNNEL_NET
+ address-family ipv4 unicast autonomous-system 68
+  eigrp router-id 2.2.2.2
+  network 100.100.100.0 255.255.255.248
+  network 172.16.2.0 255.255.255.0
+  eigrp stub connected
+  exit
+ exit
+
+router eigrp DMVPN_TRANS_NET
+ address-family ipv4 unicast autonomous-system 168
+ eigrp router-id 20.2.2.2
+ network 198.51.100.0 255.255.255.252
+ network 192.168.2.0 255.255.255.0
+end

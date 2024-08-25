@@ -1,0 +1,28 @@
+hostname R2
+no ip domain lookup
+
+line con 0
+ logging sync
+ exec-time 0 0
+exit
+
+banner motd # This is R2, Path Control Using PBR #
+
+interface G0/0/0
+ description Connection to R1
+ ip add 172.16.0.1 255.255.255.252
+ no shut
+ exit
+
+interface G0/0/1
+ description Connection to R3
+ ip address 172.16.1.1 255.255.255.252
+ no shut
+ exit
+
+router ospf 123
+ router-id 2.2.2.1
+ auto-cost reference-bandwidth 1000
+ network 172.16.0.0 0.0.0.3 area 0
+ network 172.16.1.0 0.0.0.3 area 0
+ end

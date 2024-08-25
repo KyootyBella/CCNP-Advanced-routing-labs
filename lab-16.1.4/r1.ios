@@ -1,0 +1,33 @@
+hostname R1
+no ip domain lookup
+banner motd # R1, Configure BGP Route Redistribution # 
+line con 0
+ exec-timeout 0 0
+ logging synchronous
+ exit
+interface g0/0/0
+ ip address 10.1.12.1 255.255.255.0
+ no shutdown
+ exit
+interface g0/0/1
+ ip address 10.1.11.1 255.255.255.0
+ no shutdown
+ exit
+interface loopback 0
+ ip address 10.1.1.1 255.255.255.0
+ ip ospf network point-to-point
+ ip ospf cost 15
+ no shutdown
+ exit
+router eigrp 64512
+  eigrp router-id 1.1.1.1
+  network 10.1.11.0 0.0.0.255
+  redistribute ospf 1 metric 1000000 10 255 1 1500
+  exit
+router ospf 1
+  router-id 1.1.1.1
+  network 10.1.1.0 0.0.0.255 area 1
+  network 10.1.12.0 0.0.0.255 area 0
+  redistribute eigrp 64512 metric-type 1 subnets
+  exit
+end

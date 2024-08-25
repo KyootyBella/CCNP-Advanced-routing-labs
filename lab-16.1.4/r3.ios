@@ -1,0 +1,51 @@
+hostname R3
+no ip domain lookup
+banner motd # R3, Configure BGP Route Redistribution # 
+line con 0
+ exec-timeout 0 0
+ logging synchronous
+ exit
+interface g0/0/0
+ ip address 10.1.23.3 255.255.255.0
+ no shutdown
+ exit
+interface g0/0/1
+ ip address 10.1.32.3 255.255.255.0
+ no shutdown
+ exit
+interface loopback 0
+ ip address 10.3.3.1 255.255.255.0
+ ip ospf network point-to-point
+ no shutdown
+ exit
+router ospf 1
+  router-id 3.3.3.3
+  network 10.3.3.0 0.0.0.255 area 0
+  network 10.1.23.0 0.0.0.255 area 0
+  redistribute bgp 64532 subnets
+router bgp 64532
+ bgp router-id 3.3.3.3
+ no bgp default ipv4-unicast
+ neighbor 10.1.32.2 remote-as 64532
+ address-family ipv4
+  neighbor 10.1.32.2 activate
+  neighbor 10.1.32.2 next-hop-self
+  redistribute ospf 1
+  redistribute ospf 1 match internal external 1
+  bgp redistribute-internal
+ exit  
+exit
+
+ip prefix-list LOOPBACK seq 5 permit 198.51.100.0/25
+ip prefix-list LOOPBACK seq 10 permit 10.1.1.0/24
+ip prefix-list LOOPBACK seq 15 permit 10.3.3.0/24
+ip prefix-list LOOPBACK seq 20 deny 0.0.0.0/0 le 32
+
+route-map OSPF-into-BGP permit 10
+ match ip address prefix-list LOOPBACK
+ exit
+
+router bgp 64532
+ address-family ipv4
+  redistribute ospf 1 match internal external 1 route-map OSPF-into-BGP
+  end

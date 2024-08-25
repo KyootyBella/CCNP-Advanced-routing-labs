@@ -1,0 +1,37 @@
+hostname D1
+no ip domain lookup
+
+line con 0
+exec-timeout 0 0
+logging synchronous
+exit
+
+banner motd # This is D1, Path Control Using PBR #
+
+interface G1/0/11
+ no switchport
+ description Connects to R1
+ ip address 10.10.0.2 255.255.255.252
+ no shut
+ exit
+
+interface Loopback 1
+ description Interface simulates network
+ ip ospf network point-to-point
+ ip address 10.10.1.1 255.255.255.0
+ exit
+
+interface Loopback 2
+ description Interface simulates network
+ ip ospf network point-to-point
+ ip address 10.10.2.1 255.255.255.0
+ exit
+
+ip routing
+router ospf 123
+ router-id 1.1.1.2
+ auto-cost reference-bandwidth 1000
+ network 10.10.0.0 0.0.0.3 area 0
+ network 10.10.1.0 0.0.0.255 area 0
+ network 10.10.2.0 0.0.0.255 area 0
+ end

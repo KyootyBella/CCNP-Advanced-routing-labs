@@ -1,0 +1,25 @@
+hostname D1
+no ip domain lookup
+ip routing
+banner motd # D1, Configure BGP Route Redistribution # 
+line con 0
+ exec-timeout 0 0
+ logging synchronous
+ exit
+interface range g1/0/1-24
+ shutdown
+ exit
+interface g1/0/11
+ no switchport
+ ip address 10.1.11.2 255.255.255.0
+ no shutdown
+ exit
+interface loopback 0
+ ip address 198.51.100.1 255.255.255.128
+ no shutdown
+ exit
+router eigrp 64512
+ eigrp router-id 11.11.11.11
+ network 10.1.11.0 0.0.0.255
+ network 198.51.100.0 0.0.0.127
+end

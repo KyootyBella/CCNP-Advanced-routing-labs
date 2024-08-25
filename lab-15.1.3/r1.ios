@@ -1,0 +1,60 @@
+
+hostname R1
+no ip domain lookup
+
+line con 0
+ logging sync
+ exec-time 0 0
+ exit
+
+banner motd # This is R1, Path Control Using PBR #
+
+interface G0/0/0
+ description Connection to R2
+ ip add 172.16.0.2 255.255.255.252
+ no shut
+ exit
+
+interface S0/1/0
+ description Serial Connection to R3
+ ip add 172.16.2.1 255.255.255.252
+ no shut
+ exit
+
+router ospf 123
+ router-id 1.1.1.1
+ auto-cost reference-bandwidth 1000
+ network 10.10.0.0 0.0.0.3 area 0
+ network 172.16.0.0 0.0.0.3 area 0
+ network 172.16.2.0 0.0.0.3 area 0
+ end
+
+ip access-list standard Lo2-ACL
+ remark ACL matches D1 Lo2 traffic
+ permit 10.10.2.0 0.0.0.255
+ exit
+
+route-map R1-to-R3 permit
+ description RM to forward Lo2 traffic to R3
+ match ip address Lo2-ACL
+ set ip next-hop 172.16.2.2
+ exit
+
+interface G0/0/1
+ description Connection to D1
+ ip add 10.10.0.1 255.255.255.252
+ ip policy route-map R1-to-R3
+ no shut
+ exit
+
+ip access-list extended R1-TRAFFIC
+ permit ip any 192.168.1.0 0.0.0.255
+ exit
+
+route-map LOCAL-PBR permit
+ match ip address R1-TRAFFIC
+ set ip next-hop 172.16.2.2
+ exit
+
+ip local policy route-map LOCAL-PBR
+ end
