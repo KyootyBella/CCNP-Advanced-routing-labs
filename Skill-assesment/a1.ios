@@ -1,0 +1,59 @@
+hostname A1
+no ip domain lookup
+banner motd # This is A1, ENARSI SA Part 1 #
+
+enable secret cisco12345
+username admin privilege 15 algorithm-type scrypt secret cisco12345
+
+vlan 251
+ name Servers
+ exit
+
+interface range f0/1-24
+ switchport mode access
+ shutdown
+ exit
+
+interface f0/23
+ switchport mode access
+ switchport access vlan 250
+ spanning-tree portfast
+ no shutdown
+ exit
+
+interface f0/24
+ switchport mode access
+ switchport access vlan 251
+ spanning-tree portfast
+ no shutdown
+ exit
+
+interface vlan 250
+ ip address 10.165.250.2 255.255.255.0
+ ipv6 address fe80::a1:1 link-local
+ ipv6 address 2001:db8:24A::2/64
+ no shutdown
+ exit
+
+ip default-gateway 10.165.250.1
+
+interface f0/23
+ shutdown
+ exit
+
+interface range f0/1-3
+ switchport mode trunk
+ channel-group 1 mode active
+ no shutdown
+ exit
+
+line con 0
+ logging synchronous
+ exec-timeout 0 0
+ exit
+
+line vty 0 4
+ login local
+ transport input telnet
+ exec-timeout 5 0
+ exit

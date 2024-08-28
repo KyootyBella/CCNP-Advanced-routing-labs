@@ -1,0 +1,116 @@
+hostname R3
+no ip domain lookup
+ipv6 unicast-routing
+banner motd # This is R3, ENARSI SA Part 1 #
+
+enable secret cisco12345
+username admin privilege 15 algorithm-type scrypt secret cisco12345
+
+router bgp 192
+ no bgp default ipv4-unicast
+ bgp router-id 4.6.192.3
+ neighbor 209.165.201.2 remote-as 172
+ neighbor 209.165.202.1 remote-as 10
+ neighbor 209.165.203.1 remote-as 10
+ neighbor 2001:db8:201::2 remote-as 172
+ neighbor 2001:db8:202::1 remote-as 10
+ neighbor 2001:db8:203::1 remote-as 10
+ address-family ipv4 unicast
+  neighbor 209.165.201.2 activate
+  neighbor 209.165.202.1 activate
+  neighbor 209.165.203.1 activate
+  network 192.168.240.0
+  network 192.168.241.0
+  network 192.168.242.0
+  network 192.168.243.0
+  network 192.168.0.0
+  exit
+ address-family ipv6 unicast
+  neighbor 2001:db8:201::2 activate
+  neighbor 2001:db8:202::1 activate
+  neighbor 2001:db8:203::1 activate
+  network 2001:db8:240::/64
+  network 2001:db8:241::/64
+  network 2001:db8:242::/64
+  network 2001:db8:243::/64
+  network 2001:db8:192::/64
+  exit
+ exit
+
+router ospfv3 1
+ router-id 0.0.192.3
+ address-family ipv4 unicast
+  passive-interface default
+  no passive-interface g0/0/1
+  redistribute bgp 192
+  exit
+ address-family ipv6 unicast
+  passive-interface default
+  no passive-interface g0/0/1
+  redistribute bgp 192
+  exit
+ exit
+
+interface g0/0/0
+ ip address 209.165.201.1 255.255.255.0
+ ipv6 address fe80::3:1 link-local
+ ipv6 address 2001:db8:201::1/64
+ no shutdown
+ exit
+
+interface g0/0/1
+ ip address 192.168.241.1 255.255.255.0
+ ipv6 address fe80::3:2 link-local
+ ipv6 address 2001:db8:241::1/64
+ ospfv3 1 ipv4 area 0
+ ospfv3 1 ipv6 area 0
+ no shutdown
+ exit
+
+interface s0/1/0
+ ip address 209.165.202.2 255.255.255.0
+ ipv6 address fe80::3:3 link-local
+ ipv6 address 2001:db8:202::2/64
+ no shutdown
+ exit
+
+interface s0/1/1
+ ip address 209.165.203.2 255.255.255.0
+ ipv6 address fe80::3:4 link-local
+ ipv6 address 2001:db8:203::2/64
+ no shutdown
+ exit
+
+interface loopback 0
+ ip address 192.168.0.1 255.255.255.0
+ ipv6 address fe80::3:5 link-local
+ ipv6 address 2001:db8:192::1/64
+ ip ospf network point-to-point
+ ipv6 ospf network point-to-point
+ ospfv3 1 ipv4 area 0
+ ospfv3 1 ipv6 area 0
+ no shutdown
+ exit
+
+interface loopback 1
+ ip address 192.168.240.1 255.255.255.0
+ ipv6 address fe80::3:6 link-local
+ ipv6 address 2001:db8:240::1/64
+ ip ospf network point-to-point
+ ipv6 ospf network point-to-point
+ ospfv3 1 ipv4 area 0
+ ospfv3 1 ipv6 area 0
+ no shutdown
+ exit
+
+line con 0
+ logging synchronous
+ exec-timeout 0 0
+ exit
+
+line vty 0 4
+ login local
+ transport input telnet
+ exec-timeout 5 0
+ exit
+

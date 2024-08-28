@@ -1,0 +1,97 @@
+hostname D1
+no ip domain lookup
+ip routing
+ipv6 unicast-routing
+banner motd # This is D1, ENARSI SA Part 1 #
+
+enable secret cisco12345
+username admin privilege 15 algorithm-type scrypt secret cisco12345
+
+vlan 250
+ name Users
+ exit
+
+vlan 251
+ name Servers
+ exit
+
+interface range g1/0/1-24
+ switchport mode access
+ shutdown
+
+interface g1/0/11
+ no switchport
+ ip address 10.165.249.2 255.255.255.0
+ ipv6 address fe80::d1:1 link-local
+ ipv6 address 2001:db8:249::2/64
+ no shutdown
+ exit
+
+interface g1/0/23
+ switchport mode access
+ spanning-tree portfast
+ switchport access vlan 250
+ no shutdown
+ exit
+
+interface vlan 250
+ ip address 10.165.250.1 255.255.255.0
+ ipv6 address fe80::d1:2 link-local
+ ipv6 address 2001:db8:24A::1/64
+ no shutdown
+ exit
+
+interface vlan 251
+ ip address 10.165.251.1 255.255.255.0
+ ipv6 address fe80::d1:3 link-local
+ ipv6 address 2001:db8:24B::1/64
+ no shutdown
+ exit
+
+interface range g1/0/5-6
+ switchport mode trunk
+ channel-group 1 mode active
+ no shutdown
+ exit
+
+ip dhcp excluded-address 10.165.250.1 10.165.250.5
+
+ip dhcp pool VLAN250DHCP
+ network 10.165.250.0 255.255.255.0
+ default-router 10.165.250.1
+ exit
+
+line con 0
+ logging synchronous
+ exec-timeout 0 0
+ exit
+
+line vty 0 4
+ login local
+ transport input telnet
+ exec-timeout 5 0
+ exit
+
+router eigrp ENARSI-SA
+ address-family ipv4 unicast autonomous-system 1
+  eigrp router-id 0.4.10.2
+  network 10.165.249.0
+  network 10.165.250.0
+  network 10.165.251.0
+  af-interface vlan 250
+   passive-interface
+   exit
+  af-interface vlan 251
+   passive-interface
+   exit
+  exit-address-family
+ address-family ipv6 unicast autonomous-system 1
+  eigrp router-id 0.6.10.2
+  af-interface vlan 250
+   passive-interface
+   exit
+  af-interface vlan 251
+   passive-interface
+   exit
+  exit-address-family
+ exit
