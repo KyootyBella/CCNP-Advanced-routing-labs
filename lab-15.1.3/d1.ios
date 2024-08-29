@@ -8,7 +8,7 @@ exit
 
 banner motd # This is D1, Path Control Using PBR #
 
-interface G1/0/11
+interface G2/0/11
  no switchport
  description Connects to R1
  ip address 10.10.0.2 255.255.255.252

@@ -46,7 +46,6 @@ router bgp 1000
  neighbor 2001:db8:acad:1012::2 remote-as 500
  neighbor 2001:db8:acad:1013::3 remote-as 300
  neighbor 2001:db8:acad:1014::3 remote-as 300
- exit
 
 address-family ipv4 unicast
  neighbor 10.1.2.2 activate

@@ -27,7 +27,7 @@ router ospf 123
  network 10.10.0.0 0.0.0.3 area 0
  network 172.16.0.0 0.0.0.3 area 0
  network 172.16.2.0 0.0.0.3 area 0
- end
+ exit
 
 ip access-list standard Lo2-ACL
  remark ACL matches D1 Lo2 traffic

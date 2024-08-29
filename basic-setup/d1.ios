@@ -28,7 +28,7 @@ exit
 
 int vlan 99
 name 
-ip address 192.168.99.11 255.255.255.0
+ip address 192.168.199.11 255.255.255.0
 name mngt
 no shutdown
 exit
@@ -37,14 +37,15 @@ vlan 80
 name native
 exit
 
-int g1/0/11
+int g2/0/11
 description link to r1
+switchport trunk encapsulation dot1q
 switchport mode trunk
 switchport trunk native vlan 80
 switchport trunk allowed vlan all
 no shutdown
 
-int g1/0/24
+int g2/0/24
 description link to s1
 switchport mode access
 switchport access vlan 99

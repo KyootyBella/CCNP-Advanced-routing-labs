@@ -27,7 +27,7 @@ interface g0/0/1
  ipv6 address fe80::1 link-local
  no shutdown
  ipv6 eigrp 168
- end
+ exit
 
 interface tunnel 1
  tunnel mode gre multipoint ipv6

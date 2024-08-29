@@ -37,8 +37,9 @@ vlan 80
 name native
 exit
 
-int g2/0/11
+int g1/0/11
 description link to r2
+switchport trunk encapsulation dot1q
 switchport mode trunk
 switchport trunk native vlan 80
 switchport trunk allowed vlan all

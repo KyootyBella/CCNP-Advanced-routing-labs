@@ -55,7 +55,6 @@ address-family ipv4 unicast
  neighbor 10.2.3.2 activate
  network 192.168.3.0 mask 255.255.255.224
  network 192.168.3.64 mask 255.255.255.192
- exit
 
 address-family ipv6 unicast
  neighbor 2001:db8:acad:1023::2 activate

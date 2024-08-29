@@ -48,7 +48,6 @@ address-family ipv4
  neighbor 10.2.3.3 activate
  no neighbor 2001:db8:acad:1012::1 activate
  no neighbor 2001:db8:acad:1023::3 activate
- exit
 
 address-family ipv6
  network 2001:db8:acad:2000::/64

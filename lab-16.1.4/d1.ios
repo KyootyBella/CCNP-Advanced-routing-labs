@@ -6,10 +6,10 @@ line con 0
  exec-timeout 0 0
  logging synchronous
  exit
-interface range g1/0/1-24
+interface range g2/0/1-24
  shutdown
  exit
-interface g1/0/11
+interface g2/0/11
  no switchport
  ip address 10.1.11.2 255.255.255.0
  no shutdown

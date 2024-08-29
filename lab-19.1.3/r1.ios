@@ -1,6 +1,6 @@
 hostname R1
 no ip domain lookup
-banner motd # R1, Implement DMVPN Hub #
+banner motd # R1, Implement a DMVPN hub #
 
 line con 0
  exec-timeout 0 0
@@ -22,7 +22,7 @@ interface g0/0/1
 
 interface tunnel 1
  tunnel mode gre multipoint
- tunnel source g0/0/1
+ tunnel source GigabitEthernet0/0/1
  tunnel key 999
  ip address 100.100.100.1 255.255.255.248
  ip nhrp network-id 1
@@ -31,18 +31,15 @@ interface tunnel 1
  bandwidth 4000
  ip mtu 1400
  ip tcp adjust-mss 1360
- ip nhrp redirect
- exit
 
 router eigrp DMVPN_TUNNEL_NET
  address-family ipv4 unicast autonomous-system 68
   eigrp router-id 1.1.1.1
   network 100.100.100.0 255.255.255.248
   af-interface tunnel 1
-  no split-horizon
+   no split-horizon
 
 router eigrp DMVPN_TRANS_NET
  address-family ipv4 unicast autonomous-system 168
- eigrp router-id 10.1.1.1 
- network 192.0.2.0 255.255.255.252
-end
+  eigrp router-id 10.1.1.1
+  network 192.0.2.0 255.255.255.252
